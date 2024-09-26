@@ -1,6 +1,6 @@
+import { Keyword } from "@/components/Keyword";
 import { DocsLink } from "@/components/Links/DocsLink";
 import { ExternalLink } from "@/components/Links/ExternalLink";
-import { ReactNode } from "react";
 
 export default function Home() {
   return (
@@ -48,12 +48,4 @@ export default function Home() {
       </div>
     </div>
   );
-}
-
-type KeywordProps = {
-  children: ReactNode;
-};
-
-function Keyword({ children }: KeywordProps) {
-  return <pre className="inline border px-1 py-0.5 rounded">{children}</pre>;
 }
