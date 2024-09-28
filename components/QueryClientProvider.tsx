@@ -4,12 +4,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren } from "react";
 
 export const queryClientConfig = {
-  staleTimeMs: 5 * 60 * 1000,
+  staleTimeMs: 5 * 1000,
 } as const;
 
 export const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: queryClientConfig.staleTimeMs },
+    queries: {
+      staleTime: queryClientConfig.staleTimeMs,
+      refetchOnWindowFocus: true,
+      networkMode: "always",
+      // refetchInterval: queryClientConfig.staleTimeMs,
+    },
   },
 });
 

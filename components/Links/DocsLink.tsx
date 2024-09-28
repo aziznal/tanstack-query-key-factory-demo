@@ -9,7 +9,7 @@ export function DocsLink({ children, className, ...props }: DocsLinkProps) {
     <Link
       {...props}
       target="_blank"
-      className={cn(className, "flex items-center gap-1 text-orange-600")}
+      className={cn(className, "inline-flex items-center gap-1 text-orange-600")}
     >
       {children} <LucideLink size="13" />
     </Link>
