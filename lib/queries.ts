@@ -28,13 +28,13 @@ type ItemDetails = {
 };
 
 const generateRandomId = () => {
-  return String(Math.floor((Math.random() * 10) ^ 6));
+  return Math.floor(Math.random() * 10 ** 6).toString();
 };
 
 export const generateItem = (): Item => {
   return {
     id: generateRandomId(),
-    name: generateRandomWords({ exactly: 4, join: " " }),
+    name: generateRandomWords({ exactly: 3, join: " " }),
     details: generateItemDetails(),
   };
 };
@@ -60,6 +60,8 @@ export const fetchAllItems = async (): Promise<ItemWithoutDetails[]> => {
   currentItems = Array(3)
     .fill(0)
     .map(() => generateItem());
+
+  console.log(currentItems);
 
   return currentItems;
 };
@@ -137,16 +139,18 @@ export const useGetAllItemsQuery = () =>
     queryFn: fetchAllItems,
   });
 
-export const useGetItemByIdQuery = (itemId: Item["id"]) =>
+export const useGetItemByIdQuery = (itemId?: Item["id"]) =>
   useQuery({
-    queryKey: itemsKeyFactory.item(itemId),
-    queryFn: () => fetchItem(itemId),
+    queryKey: itemsKeyFactory.item(itemId!),
+    queryFn: () => fetchItem(itemId!),
+    enabled: !!itemId,
   });
 
-export const useGetItemDetailsByIdQuery = (itemId: Item["id"]) =>
+export const useGetItemDetailsByIdQuery = (itemId?: Item["id"]) =>
   useQuery({
-    queryKey: itemsKeyFactory.itemDetails(itemId),
-    queryFn: () => fetchItemDetails(itemId),
+    queryKey: itemsKeyFactory.itemDetails(itemId!),
+    queryFn: () => fetchItemDetails(itemId!),
+    enabled: !!itemId,
   });
 
 export const useAddItemMutation = () =>
