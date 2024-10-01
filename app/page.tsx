@@ -9,6 +9,7 @@ import {
   queryClientConfig,
 } from "@/components/QueryClientProvider";
 import { Button } from "@/components/ui/button";
+import { EventLog, useEventLog } from "@/components/EventLog";
 import {
   useAddItemMutation,
   useDeleteItemMutation,
@@ -23,6 +24,10 @@ import { LucideFlame, LucideLoader2, LucideNotebook } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Home() {
+  const eventLog = useEventLog();
+
+  console.log(eventLog);
+
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
 
   const getItemByIdTimer = useTimer();
@@ -62,6 +67,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getItemDetailsByIdQuery.data?.id],
   );
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] mx-4">
@@ -156,6 +162,8 @@ export default function Home() {
           <h3 className="font-bold">Current Item Details</h3>
         </div>
       </div>
+
+      <EventLog className="mb-4" />
 
       <InternalLink
         className="flex items-center gap-1 text-zinc-500 text-xs"
