@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const generateRandomId = () => {
+  return Math.floor(Math.random() * 10 ** 6).toString();
+};
+
 export function getColorFromWords(...words: string[]): string {
   const colors = [
     "#F44336",
@@ -35,7 +39,3 @@ export function getColorFromWords(...words: string[]): string {
   // Return the color
   return colors[index];
 }
-
-// Example usage:
-const color = getColorFromWords("apple", "banana", "cherry");
-console.log(color); // Outputs one of the predefined colors

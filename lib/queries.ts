@@ -1,6 +1,7 @@
 import { queryClient } from "@/components/QueryClientProvider";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { generate as generateRandomWords } from "random-words";
+import { generateRandomId } from "./utils";
 
 export const itemsKeyFactory = {
   all: "all" as const,
@@ -25,10 +26,6 @@ type ItemWithoutDetails = Omit<Item, "details">;
 type ItemDetails = {
   id: string;
   name: string;
-};
-
-const generateRandomId = () => {
-  return Math.floor(Math.random() * 10 ** 6).toString();
 };
 
 export const generateItem = (): Item => {
@@ -60,8 +57,6 @@ export const fetchAllItems = async (): Promise<ItemWithoutDetails[]> => {
   currentItems = Array(3)
     .fill(0)
     .map(() => generateItem());
-
-  console.log(currentItems);
 
   return currentItems;
 };
