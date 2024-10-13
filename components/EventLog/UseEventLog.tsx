@@ -9,14 +9,14 @@ function createEvent({
 }: {
   name: string;
   content: LoggedEvent["content"];
-  date: Date;
+  date?: Date;
   type?: LoggedEvent["type"];
 }): LoggedEvent {
   return {
     id: generateRandomId(),
     name,
     content,
-    date,
+    date: date ?? new Date(Date.now()),
     type,
   };
 }

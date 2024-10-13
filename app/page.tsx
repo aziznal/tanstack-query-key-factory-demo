@@ -26,8 +26,6 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const eventLog = useEventLog();
 
-  console.log(eventLog);
-
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
 
   const getItemByIdTimer = useTimer();
@@ -56,18 +54,27 @@ export default function Home() {
     getItemByIdQuery.isRefetching ||
     getItemDetailsByIdQuery.isRefetching;
 
-  useEffect(
-    () => getItemByIdTimer.reset(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getItemByIdQuery.data?.id],
-  );
+  useEffect(() => {
+    if (!getItemByIdQuery.isRefetching) return;
 
-  useEffect(
-    () => getItemDetailsByIdTimer.reset(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getItemDetailsByIdQuery.data?.id],
-  );
+    eventLog.addEvent({
+      name: "get item by id query refetched",
+      content: "Fetched item by id query",
+    });
 
+    getItemByIdTimer.reset();
+  }, [eventLog, getItemByIdQuery.isRefetching, getItemByIdTimer]);
+
+  useEffect(() => {
+    if (!getItemDetailsByIdQuery.isRefetching) return;
+
+    eventLog.addEvent({
+      name: "get item details by id query refetched",
+      content: "Fetched item details by id query",
+    });
+
+    getItemDetailsByIdTimer.reset();
+  }, [eventLog, getItemDetailsByIdQuery.isRefetching, getItemDetailsByIdTimer]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh] mx-4">
@@ -204,10 +211,21 @@ type ItemsListProps = {
 function ItemsList({ items, onItemSelected, isRefetching }: ItemsListProps) {
   const { timer, reset: resetTimer } = useTimer();
 
+  const eventLog = useEventLog();
+
   useEffect(() => {
+    if (!isRefetching) return;
+
+    console.log("adding event");
+
+    eventLog.addEvent({
+      name: "Refetched all items",
+      content: "all items were re-fetched",
+      type: "data-went-stale",
+    });
+
     resetTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items[0]?.id]);
+  }, [eventLog, isRefetching, resetTimer]);
 
   return (
     <div className="p-4 rounded-sm w-[250px] outline-orange-700 outline-1 hover:outline">
