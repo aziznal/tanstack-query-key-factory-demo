@@ -26,16 +26,44 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const eventLog = useEventLog();
 
-  console.log(eventLog);
-
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
 
+  const getAllItemsTimer = useTimer();
   const getItemByIdTimer = useTimer();
   const getItemDetailsByIdTimer = useTimer();
 
-  const getAllItemsQuery = useGetAllItemsQuery();
-  const getItemByIdQuery = useGetItemByIdQuery(selectedItemId);
-  const getItemDetailsByIdQuery = useGetItemDetailsByIdQuery(selectedItemId);
+  const getAllItemsQuery = useGetAllItemsQuery({
+    pre: () => {
+      eventLog.addEvent({
+        name: "Fetched All Items",
+        type: "query-fetching",
+      });
+
+      getAllItemsTimer.reset();
+    },
+  });
+
+  const getItemByIdQuery = useGetItemByIdQuery(selectedItemId, {
+    pre: () => {
+      eventLog.addEvent({
+        name: `Get ITEM by id ${selectedItemId} fetched`,
+        type: "query-fetching",
+      });
+
+      getItemByIdTimer.reset();
+    },
+  });
+
+  const getItemDetailsByIdQuery = useGetItemDetailsByIdQuery(selectedItemId, {
+    pre: () => {
+      eventLog.addEvent({
+        name: `Get ITEM DETAILS by id ${selectedItemId} fetched`,
+        type: "query-fetching",
+      });
+
+      getItemDetailsByIdTimer.reset();
+    },
+  });
 
   const addItemMutation = useAddItemMutation();
   const deleteItemMutation = useDeleteItemMutation();
@@ -56,21 +84,8 @@ export default function Home() {
     getItemByIdQuery.isRefetching ||
     getItemDetailsByIdQuery.isRefetching;
 
-  useEffect(
-    () => getItemByIdTimer.reset(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getItemByIdQuery.data?.id],
-  );
-
-  useEffect(
-    () => getItemDetailsByIdTimer.reset(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [getItemDetailsByIdQuery.data?.id],
-  );
-
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] mx-4">
+    <div className="flex flex-col items-center justify-center min-h-[100dvh] mx-4 py-12">
       <ExternalLink
         href="https://tanstack.com/query/latest"
         className="font-bold text-lg mb-2"
@@ -138,6 +153,7 @@ export default function Home() {
           items={getAllItemsQuery.data ?? []}
           isRefetching={getAllItemsQuery.isRefetching}
           onItemSelected={setSelectedItemId}
+          timer={getAllItemsTimer.timer}
         />
 
         <div className="flex flex-col border p-3 rounded-sm w-[250px]">
@@ -199,16 +215,15 @@ type ItemsListProps = {
   items: { id: string; name: string }[];
   isRefetching: boolean;
   onItemSelected: (itemId: string) => void;
+  timer: number;
 };
 
-function ItemsList({ items, onItemSelected, isRefetching }: ItemsListProps) {
-  const { timer, reset: resetTimer } = useTimer();
-
-  useEffect(() => {
-    resetTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items[0]?.id]);
-
+function ItemsList({
+  items,
+  onItemSelected,
+  isRefetching,
+  timer,
+}: ItemsListProps) {
   return (
     <div className="p-4 rounded-sm w-[250px] outline-orange-700 outline-1 hover:outline">
       <div className="flex items-center gap-4">

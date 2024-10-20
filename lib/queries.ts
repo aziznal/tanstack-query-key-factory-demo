@@ -1,5 +1,10 @@
 import { queryClient } from "@/components/QueryClientProvider";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { generate as generateRandomWords } from "random-words";
 import { generateRandomId } from "./utils";
 
@@ -128,65 +133,108 @@ export const deleteItem = async (itemId: Item["id"]) => {
   currentItems = currentItems.filter((item) => item.id !== itemId);
 };
 
-export const useGetAllItemsQuery = () =>
+type UseQueryOptionsWithCallbacks<T> = {
+  /** function to run before the query */
+  pre?: () => void;
+} & Omit<UseQueryOptions<T>, "queryKey">; // omitted due to issues when passing options in components
+
+export const useGetAllItemsQuery = (
+  options?: UseQueryOptionsWithCallbacks<ItemWithoutDetails[]>,
+) =>
   useQuery({
+    ...options,
     queryKey: itemsKeyFactory.items(),
-    queryFn: fetchAllItems,
-  });
-
-export const useGetItemByIdQuery = (itemId?: Item["id"]) =>
-  useQuery({
-    queryKey: itemsKeyFactory.item(itemId!),
-    queryFn: () => fetchItem(itemId!),
-    enabled: !!itemId,
-  });
-
-export const useGetItemDetailsByIdQuery = (itemId?: Item["id"]) =>
-  useQuery({
-    queryKey: itemsKeyFactory.itemDetails(itemId!),
-    queryFn: () => fetchItemDetails(itemId!),
-    enabled: !!itemId,
-  });
-
-export const useAddItemMutation = () =>
-  useMutation({
-    mutationFn: addItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: itemsKeyFactory.items(),
-      });
+    queryFn: () => {
+      options?.pre?.();
+      return fetchAllItems();
     },
   });
 
-export const useDeleteItemMutation = () =>
+export const useGetItemByIdQuery = (
+  itemId?: Item["id"],
+  options?: UseQueryOptionsWithCallbacks<ItemWithoutDetails | undefined>,
+) =>
+  useQuery({
+    ...options,
+    queryKey: itemsKeyFactory.item(itemId!),
+    queryFn: () => {
+      options?.pre?.();
+      return fetchItem(itemId!);
+    },
+    enabled: !!itemId,
+  });
+
+export const useGetItemDetailsByIdQuery = (
+  itemId?: Item["id"],
+  options?: UseQueryOptionsWithCallbacks<ItemWithoutDetails | undefined>,
+) =>
+  useQuery({
+    ...options,
+    queryKey: itemsKeyFactory.itemDetails(itemId!),
+    queryFn: () => {
+      options?.pre?.();
+      return fetchItemDetails(itemId!);
+    },
+    enabled: !!itemId,
+  });
+
+export const useAddItemMutation = (options?: UseMutationOptions) =>
   useMutation({
+    ...options,
+    mutationFn: addItem,
+    onSuccess: (...params) => {
+      queryClient.invalidateQueries({
+        queryKey: itemsKeyFactory.items(),
+      });
+
+      options?.onSuccess?.(...params);
+    },
+  });
+
+export const useDeleteItemMutation = (
+  options?: UseMutationOptions<unknown, unknown, unknown>,
+) =>
+  useMutation({
+    ...options,
     mutationFn: (...params: Parameters<typeof deleteItem>) =>
       deleteItem(...params),
-    onSuccess: () => {
+    onSuccess: (...params) => {
       queryClient.invalidateQueries({
         queryKey: itemsKeyFactory.items(),
       });
+
+      options?.onSuccess?.(...params);
     },
   });
 
-export const useUpdateItemNameMutation = () =>
+export const useUpdateItemNameMutation = (
+  options?: UseMutationOptions<unknown, unknown, unknown>,
+) =>
   useMutation({
+    ...options,
     mutationFn: (...params: Parameters<typeof updateItemName>) =>
       updateItemName(...params),
-    onSuccess: () => {
+    onSuccess: (...params) => {
       queryClient.invalidateQueries({
         queryKey: itemsKeyFactory.items(),
       });
+
+      options?.onSuccess?.(...params);
     },
   });
 
-export const useUpdateItemDetailsNameMutation = () =>
+export const useUpdateItemDetailsNameMutation = (
+  options?: UseMutationOptions<unknown, unknown, unknown>,
+) =>
   useMutation({
+    ...options,
     mutationFn: (...params: Parameters<typeof updateItemDetailsName>) =>
       updateItemDetailsName(...params),
-    onSuccess: (_, params) => {
+    onSuccess: (...params) => {
       queryClient.invalidateQueries({
-        queryKey: itemsKeyFactory.itemDetails(params.itemId),
+        queryKey: itemsKeyFactory.itemDetails(params[1].itemId),
       });
+
+      options?.onSuccess?.(...params);
     },
   });
