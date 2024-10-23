@@ -7,6 +7,7 @@ import {
   LucideEye,
   LucideEyeOff,
   LucideFilter,
+  LucideRotateCw,
   LucideTrash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -38,8 +39,8 @@ export function EventLog({ className }: EventLogProps) {
       addEvent({
         name:
           document.visibilityState === "hidden"
-            ? "Document Visible"
-            : "Document Hidden",
+            ? "Document Hidden"
+            : "Document Visible",
         date: new Date(),
         type:
           document.visibilityState === "hidden"
@@ -129,7 +130,7 @@ const EventFilter: React.FC = () => {
           <LucideFilter size="20" />
 
           {filter.eventTypes.length !== 0 && (
-            <div className="flex items-center justify-center rounded-full h-[16px] w-[16px] shrink-0 leading-none text-xs absolute top-0 right-0 bg-orange-700">
+            <div className="flex items-center justify-center rounded-full h-[16px] w-[16px] shrink-0 leading-none text-xs absolute top-0 right-0 bg-zinc-700">
               {filter.eventTypes.length}
             </div>
           )}
@@ -138,7 +139,13 @@ const EventFilter: React.FC = () => {
 
       <PopoverContent align="end">
         <div>
-          <h2 className="font-bold">Event Filter</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold">Event Filter</h2>
+
+            <IconButton onClick={filter.clearFilters}>
+              <LucideRotateCw size="20"/>
+            </IconButton>
+          </div>
 
           <p className="text-sm text-zinc-500 mb-4">
             Select which types of events to include. Selecting no events will
@@ -149,10 +156,11 @@ const EventFilter: React.FC = () => {
             {getLoggedEventTypes().map((eventType) => (
               <div
                 key={`event-type-filter-${eventType}`}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 cursor-pointer"
               >
                 <input
                   id={`event-type-filter-id-${eventType}`}
+                  className="cursor-pointer"
                   type="checkbox"
                   checked={filter.eventTypes.includes(eventType)}
                   onChange={() => {
@@ -160,7 +168,10 @@ const EventFilter: React.FC = () => {
                   }}
                 />
 
-                <label htmlFor={`event-type-filter-id-${eventType}`}>
+                <label
+                  htmlFor={`event-type-filter-id-${eventType}`}
+                  className="cursor-pointer"
+                >
                   <pre className="text-sm">{eventType}</pre>
                 </label>
               </div>

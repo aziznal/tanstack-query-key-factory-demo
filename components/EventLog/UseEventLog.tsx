@@ -1,5 +1,6 @@
 import { generateRandomId } from "@/lib/utils";
 import {
+  getLoggedEventTypes,
   LoggedEvent,
   useEventLogFilterStore,
   useEventLogStore,
@@ -68,7 +69,7 @@ export function useEventLogFilter() {
   );
 
   const clearFilters = useCallback(() => {
-    return store.setIncludedEventTypes([]);
+    return store.setIncludedEventTypes([...getLoggedEventTypes()]);
   }, [store]);
 
   return {
