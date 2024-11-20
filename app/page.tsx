@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EventLog, useEventLog } from "@/components/EventLog";
 import {
+  itemsKeyFactory,
   useAddItemMutation,
   useDeleteItemMutation,
   useGetAllItemsQuery,
@@ -159,6 +160,8 @@ export default function Home() {
         <div className="flex flex-col border p-3 rounded-sm w-[250px]">
           <h3 className="font-bold mb-4">Current Item</h3>
 
+          <QueryKeyPreview queryKey={itemsKeyFactory.item(selectedItemId ?? '')} />
+
           <RefetchProgressBar
             timerMs={getItemByIdQuery.data ? getItemByIdTimer.timer : 0}
           />
@@ -224,9 +227,15 @@ function ItemsList({
   isRefetching,
   timer,
 }: ItemsListProps) {
+  const invalidateItemsList = () => {
+    queryClient.invalidateQueries({
+      queryKey: itemsKeyFactory.items(),
+    });
+  };
+
   return (
     <div className="p-4 rounded-sm w-[250px] outline-orange-700 outline-1 hover:outline">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-2">
         <h3 className="font-bold">Items</h3>
 
         {isRefetching && (
@@ -236,6 +245,17 @@ function ItemsList({
           </span>
         )}
       </div>
+
+      <Button
+        size="xs"
+        onClick={invalidateItemsList}
+        variant="outline"
+        className="mb-2"
+      >
+        Invalidate Items <LucideFlame size="20" className="text-amber-700" />
+      </Button>
+
+      <QueryKeyPreview queryKey={itemsKeyFactory.items()} />
 
       <div>
         <RefetchProgressBar timerMs={timer} />
@@ -279,4 +299,8 @@ function RefetchProgressBar({ timerMs }: RefetchProgressBarProps) {
       </div>
     </>
   );
+}
+
+function QueryKeyPreview({ queryKey }: { queryKey: readonly string[] }) {
+  return <div className="font-mono text-sm">[{queryKey.join(", ")}]</div>;
 }
